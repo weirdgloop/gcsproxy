@@ -168,10 +168,11 @@ func main() {
 	flag.Parse()
 
 	var err error
+	// WGL - Use JSON API for reads as fake-gcs-server doesn't implement the XML API.
 	if *credentials != "" {
-		client, err = storage.NewClient(context.Background(), option.WithCredentialsFile(*credentials))
+		client, err = storage.NewClient(context.Background(), option.WithCredentialsFile(*credentials), storage.WithJSONReads())
 	} else {
-		client, err = storage.NewClient(context.Background())
+		client, err = storage.NewClient(context.Background(), storage.WithJSONReads())
 	}
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
