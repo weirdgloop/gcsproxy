@@ -19,6 +19,7 @@ import (
 
 var (
 	bind         = flag.String("b", "127.0.0.1:8080", "Bind address")
+	json         = flag.Bool("j", false, "Use JSON API for reads")
 	verbose      = flag.Bool("v", false, "Show access log")
 	credentials  = flag.String("c", "", "The path to the keyfile. If not present, client will use your default application credentials.")
 	defaultIndex = flag.String("i", "", "The default index file to serve.")
@@ -169,11 +170,14 @@ func main() {
 
 	var err error
 	// WGL - Use JSON API for reads as fake-gcs-server doesn't implement the XML API.
+	var opts []option.ClientOption
 	if *credentials != "" {
-		client, err = storage.NewClient(context.Background(), option.WithCredentialsFile(*credentials), storage.WithJSONReads())
-	} else {
-		client, err = storage.NewClient(context.Background(), storage.WithJSONReads())
+		opts = append(opts, option.WithCredentialsFile(*credentials))
 	}
+	if *json {
+		opts = append(opts, storage.WithJSONReads())
+	}
+	client, err = storage.NewClient(context.Background(), opts...)
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
 	}
