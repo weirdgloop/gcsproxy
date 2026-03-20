@@ -176,8 +176,10 @@ func main() {
 	}
 	if *json {
 		opts = append(opts, storage.WithJSONReads())
+		client, err = storage.NewClient(context.Background(), opts...)
+	} else {
+		client, err = storage.NewGRPCClient(context.Background(), opts...)
 	}
-	client, err = storage.NewClient(context.Background(), opts...)
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
 	}
